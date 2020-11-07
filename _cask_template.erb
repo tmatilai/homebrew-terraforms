@@ -1,0 +1,8 @@
+cask 'terraform-<%= version %>' do
+  version '<%= version %>'
+  sha256 '<%= sha256 %>'
+
+  url "<%= url.gsub(version, '#{version}') %>"
+  name 'Terraform'
+  homepage 'https://www.terraform.io/'
+end

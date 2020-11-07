@@ -1,0 +1,139 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'erb'
+require 'json'
+require 'net/http'
+require 'uri'
+
+CASK_DIR = ENV['CASK_DIR'] || 'Casks'
+CASK_TEMPLATE = ENV['CASK_TEMPLATE'] || '_cask_template.erb'
+
+RELEASES_BASE_URL = 'https://releases.hashicorp.com/terraform'
+
+# Fetch all Terraform releases, and for each missing version add a Cask and
+# print out the version number.
+def add_new_terraform_casks
+  casks = Casks.new(cask_dir: CASK_DIR, template: CASK_TEMPLATE)
+  releases = TerraformReleases.new(base_url: RELEASES_BASE_URL)
+
+  releases.sorted.each do |version|
+    next if !update_all? && casks.include?(version)
+
+    begin
+      casks.add(releases[version])
+      puts version
+    rescue TerraformReleases::VersionInfoError => e
+      warn "#{e.message}"
+    end
+  end
+end
+
+def update_all?
+  @update_all ||= (ENV['UPDATE_ALL'] == 'yes')
+end
+
+# All existing Terraform releases
+class TerraformReleases
+  class ReleasesError < StandardError; end
+  class VersionInfoError < StandardError; end
+
+  attr_reader :base_url
+
+  def initialize(**opts)
+    @base_url = opts.fetch(:base_url)
+  end
+
+  def versions
+    @versions ||= fetch_releases
+  end
+
+  # Returns information of the specified release
+  def [](version)
+    release = versions.fetch(version)
+    {
+      version: version,
+      url: download_url(release),
+      sha256: fetch_sha256sum(release)
+    }
+  end
+
+  def sorted
+    versions.keys.sort_by { |v| Gem::Version.new(v) }
+  end
+
+  def releases_url
+    "#{base_url}/index.json"
+  end
+
+  def shasums_url(release)
+    "#{base_url}/#{release.fetch('version')}/#{release.fetch('shasums')}"
+  end
+
+  def download_url(release)
+    release.fetch('builds').each do |build|
+      return build['url'] if build['os'] == 'darwin' && build['arch'] == 'amd64'
+    end
+    raise VersionInfoError, "No build found for v#{release['version']}"
+  end
+
+  def fetch_releases
+    res = Net::HTTP.get_response(URI(releases_url))
+    if !res.is_a?(Net::HTTPSuccess)
+      raise ReleasesError,
+        "Failed to fetch Terraform releases from #{releases_url}\n" \
+        "-> #{res.code} #{res.message}"
+    end
+    JSON.parse(res.body).fetch('versions')
+  end
+
+  def fetch_sha256sum(release)
+    url = shasums_url(release)
+    res = Net::HTTP.get_response(URI(url))
+    return parse_sha(res.body, release) if res.is_a?(Net::HTTPSuccess)
+
+    raise VersionInfoError,
+      "Failed to fetch sha256 sums from #{url}\n-> #{res.code} #{res.message}"
+  end
+
+  def parse_sha(data, release)
+    data.each_line do |line|
+      fields = line.split
+      return fields[0] if fields[1] =~ /_darwin_amd64/
+    end
+
+    raise VersionInfoError,
+      "Failed to find sha256 sum for v#{release['version']}"
+  end
+end
+
+# Terraform Casks in this repository
+class Casks
+  attr_reader :cask_dir, :template_file
+
+  def initialize(**opts)
+    @cask_dir = opts.fetch(:cask_dir)
+    @template_file = opts.fetch(:template)
+  end
+
+  def include?(version)
+    versions.include?(version)
+  end
+
+  def add(version_info)
+    cask_file = File.join(cask_dir, "terraform-#{version_info[:version]}.rb")
+    IO.write(cask_file, template.result_with_hash(version_info))
+  end
+
+  def versions
+    @versions ||= Dir.glob(File.join(cask_dir, 'terraform-*.rb')).map do |file|
+      File.basename(file, '.rb').sub(/^terraform-/, '')
+    end
+  end
+
+  def template
+    @template ||= ERB.new(IO.read(template_file))
+  end
+end
+
+add_new_terraform_casks if __FILE__ == $PROGRAM_NAME
