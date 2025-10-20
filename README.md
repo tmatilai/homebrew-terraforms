@@ -2,17 +2,17 @@
 
 This repository includes [Homebrew](https://brew.sh/) Casks to install multiple (or even all!) Terraform versions at the same time. It also includes Homebrew Formula for [chtf][], a Terraform version switcher.
 
-**NOTE**: The `chtf` tool has been extracted to its own repository: [https://github.com/Yleisradio/chtf][chtf]. It can still be installed via this Tap and used as before. But now it also supports systems without Homebrew, also for auto-install.
+**NOTE**: The `chtf` tool has been extracted to its own repository: [https://github.com/tmatilai/chtf][chtf]. It can still be installed via this Tap and used as before. But now it also supports systems without Homebrew, also for auto-install.
 
-[chtf]: https://github.com/Yleisradio/chtf
+[chtf]: https://github.com/tmatilai/chtf
 
 ## Usage
 
 Tap this repository:
 
-    brew tap yleisradio/terraforms
+    brew tap tmatilai/terraforms
 
-Install the [`chtf`](https://github.com/Yleisradio/chtf) helper:
+Install the [`chtf`](https://github.com/tmatilai/chtf) helper:
 
     brew install chtf
 
@@ -36,6 +36,6 @@ You can also just install a specific Terraform version (but you'll need to use `
 
 ## Contributing
 
-Bug reports, pull requests, and other contributions are welcome on GitHub at https://github.com/Yleisradio/homebrew-terraforms.
+Bug reports, pull requests, and other contributions are welcome on GitHub at https://github.com/tmatilai/homebrew-terraforms.
 
 This project is intended to be a safe, welcoming space for collaboration. By participating in this project you agree to abide by the terms of [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
