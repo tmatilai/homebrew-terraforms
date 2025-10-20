@@ -1,12 +1,12 @@
 class Chtf < Formula
   desc "Terraform version switcher"
-  homepage "https://github.com/Yleisradio/chtf#readme"
+  homepage "https://github.com/tmatilai/chtf#readme"
 
-  url "https://github.com/Yleisradio/chtf/archive/refs/tags/v2.2.2.tar.gz"
-  sha256 "00d797dccf0aff03034be2dc75698a3f24c5ba56363202c9a32b31e3184a0686"
+  url "https://github.com/tmatilai/chtf/archive/refs/tags/v2.3.0.tar.gz"
+  sha256 "d44606fe55ba2903f00b1f93ba411d4e06aa02978a577d8491e477c28a8a47bc"
   license "MIT"
 
-  head "https://github.com/Yleisradio/chtf.git"
+  head "https://github.com/tmatilai/chtf.git"
 
   option "without-completions", "Disable shell command completions"
 

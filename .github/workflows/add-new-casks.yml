@@ -8,7 +8,7 @@ jobs:
   add_new_casks:
     name: Add New Terraform Casks
     # Only run on the main repo
-    if: github.repository == 'Yleisradio/homebrew-terraforms'
+    if: github.repository == 'tmatilai/homebrew-terraforms'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
