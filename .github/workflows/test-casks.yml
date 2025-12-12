@@ -38,7 +38,6 @@ jobs:
           CHTF_AUTO_INSTALL: "yes"
         shell: bash
         run: |
-          set -euo pipefail
           # Tap the local repository
           brew tap "local/terraforms" "$(pwd)"
 
