@@ -1,0 +1,53 @@
+name: Test Changed Terraform Casks
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test_changed_casks:
+    name: Test Changed Terraform Casks
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          # Fetch all history to be able to diff against base branch
+          fetch-depth: 0
+
+      - name: Get new and modified Cask files
+        id: changed_casks
+        run: |
+          set -euo pipefail
+          BASE_REF="${{ github.base_ref }}"
+          echo "Diffing against origin/${BASE_REF}"
+          echo "files=$(git diff --name-only --diff-filter=AM origin/${BASE_REF}...HEAD -- 'Casks/*.rb')" >> "$GITHUB_OUTPUT"
+
+      - name: No changed Casks detected
+        if: ${{ !steps.changed_casks.outputs.files }}
+        run: |
+          echo "No cask files in this PR. Skipping tests."
+
+      - name: Test changed Casks
+        if: ${{ steps.changed_casks.outputs.files }}
+        env:
+          CHTF_AUTO_INSTALL: "yes"
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Tap the local repository
+          brew tap "local/terraforms" "$(pwd)"
+
+          # Install chtf
+          brew install local/terraforms/chtf
+          source "$(brew --prefix)/share/chtf/chtf.sh"
+
+          for path in ${{ steps.changed_casks.outputs.files }}; do
+            version=$(awk -F'"' '/ version / {print $2; exit}' "$path")
+            cask_name=$(basename "$path" .rb)
+
+            echo "Testing v$version ($cask_name)"
+            chtf "$version"
+
+            terraform --version | grep "Terraform v$version"
+
+            brew uninstall --cask "$cask_name"
