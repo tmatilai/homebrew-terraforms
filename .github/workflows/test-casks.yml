@@ -20,7 +20,8 @@ jobs:
           set -euo pipefail
           BASE_REF="${{ github.base_ref }}"
           echo "Diffing against origin/${BASE_REF}"
-          echo "files=$(git diff --name-only --diff-filter=AM origin/${BASE_REF}...HEAD -- 'Casks/*.rb')" >> "$GITHUB_OUTPUT"
+          files=$(git diff --name-only --diff-filter=AM origin/${BASE_REF}...HEAD -- 'Casks/*.rb')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
 
       - name: No changed Casks detected
         if: ${{ !steps.changed_casks.outputs.files }}
