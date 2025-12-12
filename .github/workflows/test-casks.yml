@@ -39,10 +39,10 @@ jobs:
         shell: bash
         run: |
           # Tap the local repository
-          brew tap "local/terraforms" "$(pwd)"
+          brew tap "tmatilai/terraforms" "$(pwd)"
 
           # Install chtf
-          brew install local/terraforms/chtf
+          brew install tmatilai/terraforms/chtf
           source "$(brew --prefix)/share/chtf/chtf.sh"
 
           while IFS= read -r path; do
