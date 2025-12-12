@@ -45,7 +45,8 @@ jobs:
           brew install local/terraforms/chtf
           source "$(brew --prefix)/share/chtf/chtf.sh"
 
-          for path in ${{ steps.changed_casks.outputs.files }}; do
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
             version=$(awk -F'"' '/ version / {print $2; exit}' "$path")
             cask_name=$(basename "$path" .rb)
 
@@ -55,3 +56,4 @@ jobs:
             terraform --version | grep "Terraform v$version"
 
             brew uninstall --cask "$cask_name"
+          done <<< "${{ steps.changed_casks.outputs.files }}"
