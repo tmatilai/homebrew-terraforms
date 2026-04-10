@@ -4,6 +4,10 @@ on:
     # Daily at 04:20 UTC
     - cron:  '20 4 * * *'
   workflow_dispatch: {}
+
+permissions:
+  contents: read
+
 jobs:
   add_new_casks:
     name: Add New Terraform Casks
