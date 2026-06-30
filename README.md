@@ -8,9 +8,10 @@ This repository includes [Homebrew](https://brew.sh/) Casks to install multiple 
 
 ## Usage
 
-Tap this repository:
+Tap this repository and trust it:
 
     brew tap tmatilai/terraforms
+    brew trust tmatilai/terraforms
 
 Install the [`chtf`](https://github.com/tmatilai/chtf) helper:
 

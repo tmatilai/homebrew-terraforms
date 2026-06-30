@@ -43,6 +43,7 @@ jobs:
         run: |
           # Tap the local repository
           brew tap "tmatilai/terraforms" "$(pwd)"
+          brew trust tmatilai/terraforms
 
           # Install chtf
           brew install tmatilai/terraforms/chtf
