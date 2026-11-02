@@ -35,7 +35,9 @@ jobs:
           fetch-depth: 0
 
       - name: Tap the local repository
-        run: brew tap "tmatilai/terraforms" "$(pwd)"
+        run: |
+          brew tap "tmatilai/terraforms" "$(pwd)"
+          brew trust tmatilai/terraforms
 
       - name: Check style
         run: brew style Casks Formula
