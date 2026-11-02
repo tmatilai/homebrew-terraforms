@@ -87,9 +87,14 @@ jobs:
             brew test "$name"
           done <<< "$FILES"
 
+      # Manual runs on the default branch can close the issue, but only
+      # scheduled runs open one.
       - name: Find an open failure issue
         id: issue
-        if: ${{ always() && github.event_name == 'schedule' }}
+        if: >-
+          ${{ always() && (github.event_name == 'schedule' ||
+          (github.event_name == 'workflow_dispatch' &&
+          github.ref == format('refs/heads/{0}', github.event.repository.default_branch))) }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
